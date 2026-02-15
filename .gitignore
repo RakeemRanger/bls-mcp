@@ -32,7 +32,7 @@ venv/
 ENV/
 
 # IDE
-.vscode/
+
 .idea/
 
 # dotenv
