@@ -1,0 +1,100 @@
+name: Build & Deploy Function App
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - 'src/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.12'
+  AZURE_LOCATION: 'eastus2'
+
+jobs:
+  build:
+    name: Build Function App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        working-directory: src
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+
+      - name: Upload artifact for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: function-app
+          path: src/
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy to Azure
+    needs: build
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'prod' || 'dev') }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: function-app
+          path: ./deploy
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set environment name
+        id: env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "name=prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get Function App name
+        id: func
+        run: |
+          RG="rg-bls-mcp-${{ steps.env.outputs.name }}"
+          FUNC_NAME=$(az functionapp list --resource-group "$RG" --query "[0].name" -o tsv)
+          echo "name=$FUNC_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ steps.func.outputs.name }}
+          package: ./deploy
+
+      - name: Output MCP endpoint
+        run: |
+          echo "## 🚀 Deployed!" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**MCP Endpoint:** \`https://${{ steps.func.outputs.name }}.azurewebsites.net/runtime/webhooks/mcp\`" >> "$GITHUB_STEP_SUMMARY"

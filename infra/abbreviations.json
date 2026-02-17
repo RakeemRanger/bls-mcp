@@ -1,0 +1,10 @@
+{
+    "insightsComponents": "appi-",
+    "keyVaultVaults": "kv-",
+    "managedIdentityUserAssignedIdentities": "id-",
+    "operationalInsightsWorkspaces": "log-",
+    "resourcesResourceGroups": "rg-",
+    "storageStorageAccounts": "st",
+    "webServerFarms": "plan-",
+    "webSitesFunctions": "func-"
+}

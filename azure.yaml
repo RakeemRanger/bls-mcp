@@ -1,0 +1,12 @@
+name: bls-mcp
+metadata:
+  template: bls-mcp@0.0.1
+services:
+  api:
+    project: ./src
+    language: python
+    host: function
+    hooks:
+      prepackage:
+        shell: sh
+        run: pip install -r requirements.txt --target=".python_packages/lib/site-packages"
