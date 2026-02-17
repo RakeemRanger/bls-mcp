@@ -11,7 +11,55 @@ logger = logging.getLogger(__name__)
 BLS_API_V1_URL = "https://api.bls.gov/publicAPI/v1/timeseries/data/"
 BLS_API_V2_URL = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 
-# Major BLS series IDs covering key labor statistics
+# ---------------------------------------------------------------------------
+# FIPS codes – used to build LAUS series IDs for state & county data
+# ---------------------------------------------------------------------------
+STATE_FIPS = {
+    "Alabama": "01", "Alaska": "02", "Arizona": "04", "Arkansas": "05",
+    "California": "06", "Colorado": "08", "Connecticut": "09", "Delaware": "10",
+    "District of Columbia": "11", "Florida": "12", "Georgia": "13", "Hawaii": "15",
+    "Idaho": "16", "Illinois": "17", "Indiana": "18", "Iowa": "19",
+    "Kansas": "20", "Kentucky": "21", "Louisiana": "22", "Maine": "23",
+    "Maryland": "24", "Massachusetts": "25", "Michigan": "26", "Minnesota": "27",
+    "Mississippi": "28", "Missouri": "29", "Montana": "30", "Nebraska": "31",
+    "Nevada": "32", "New Hampshire": "33", "New Jersey": "34", "New Mexico": "35",
+    "New York": "36", "North Carolina": "37", "North Dakota": "38", "Ohio": "39",
+    "Oklahoma": "40", "Oregon": "41", "Pennsylvania": "42", "Rhode Island": "44",
+    "South Carolina": "45", "South Dakota": "46", "Tennessee": "47", "Texas": "48",
+    "Utah": "49", "Vermont": "50", "Virginia": "51", "Washington": "53",
+    "West Virginia": "54", "Wisconsin": "55", "Wyoming": "56",
+    "Puerto Rico": "72",
+}
+
+# Reverse lookup: FIPS code → state name
+FIPS_TO_STATE = {v: k for k, v in STATE_FIPS.items()}
+
+# Common abbreviations → full name
+STATE_ABBREVIATIONS = {
+    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
+    "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
+    "DC": "District of Columbia", "FL": "Florida", "GA": "Georgia", "HI": "Hawaii",
+    "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "IA": "Iowa",
+    "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine",
+    "MD": "Maryland", "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota",
+    "MS": "Mississippi", "MO": "Missouri", "MT": "Montana", "NE": "Nebraska",
+    "NV": "Nevada", "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico",
+    "NY": "New York", "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio",
+    "OK": "Oklahoma", "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island",
+    "SC": "South Carolina", "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas",
+    "UT": "Utah", "VT": "Vermont", "VA": "Virginia", "WA": "Washington",
+    "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming", "PR": "Puerto Rico",
+}
+
+# LAUS measure codes (last two digits of a LAUS series ID)
+LAUS_MEASURES = {
+    "03": "Unemployment Rate",
+    "04": "Unemployment",
+    "05": "Employment",
+    "06": "Labor Force",
+}
+
+# Major BLS series IDs covering key *national* labor statistics
 BLS_SERIES = {
     # Consumer Price Index (CPI)
     "CUUR0000SA0": "CPI - All Urban Consumers, All Items, US City Average",
@@ -188,4 +236,191 @@ class BLSClient:
         return [
             {"series_id": sid, "series_name": name}
             for sid, name in self._series_metadata.items()
+        ]
+
+    # ------------------------------------------------------------------
+    # State & county helpers (LAUS – Local Area Unemployment Statistics)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def resolve_state(name_or_abbrev: str) -> tuple[str, str] | None:
+        """
+        Resolve a state name, abbreviation, or FIPS code to (fips, full_name).
+
+        Returns None if the input cannot be matched.
+        """
+        val = name_or_abbrev.strip()
+
+        # Check by abbreviation (e.g. "OH")
+        upper = val.upper()
+        if upper in STATE_ABBREVIATIONS:
+            full = STATE_ABBREVIATIONS[upper]
+            return STATE_FIPS[full], full
+
+        # Check by full name (case-insensitive)
+        for state, fips in STATE_FIPS.items():
+            if state.lower() == val.lower():
+                return fips, state
+
+        # Check by FIPS code directly (e.g. "39")
+        if val.zfill(2) in FIPS_TO_STATE:
+            fips = val.zfill(2)
+            return fips, FIPS_TO_STATE[fips]
+
+        return None
+
+    @staticmethod
+    def build_state_series_id(fips: str, measure: str = "03", seasonal: str = "S") -> str:
+        """
+        Build a LAUS state-level series ID.
+
+        Format: LA + seasonal(1) + area_code(15) + measure(2) = 20 chars
+        Area code for state: ST + 2-digit FIPS + 11 zeros
+
+        :param fips: 2-digit state FIPS code
+        :param measure: LAUS measure – 03=rate, 04=unemployment, 05=employment, 06=labor force
+        :param seasonal: S = seasonally adjusted, U = not seasonally adjusted
+        """
+        return f"LA{seasonal}ST{fips}00000000000{measure}"
+
+    @staticmethod
+    def build_county_series_id(county_fips: str, measure: str = "03") -> str:
+        """
+        Build a LAUS county-level series ID.
+
+        Format: LA + U(1) + area_code(15) + measure(2) = 20 chars
+        Area code for county: CN + 5-digit FIPS + 8 zeros
+        County data is only available NOT seasonally adjusted.
+
+        :param county_fips: 5-digit county FIPS code (e.g. "39049" for Franklin County, OH)
+        :param measure: LAUS measure – 03=rate, 04=unemployment, 05=employment, 06=labor force
+        """
+        return f"LAUCN{county_fips}00000000{measure}"
+
+    def get_state_data(
+        self,
+        state: str,
+        measure: str = "03",
+        start_year: str | None = None,
+        end_year: str | None = None,
+    ) -> list[dict]:
+        """
+        Fetch LAUS data for a state.
+
+        :param state: State name, abbreviation, or FIPS code
+        :param measure: 03=rate, 04=unemployment, 05=employment, 06=labor force
+        :returns: List of data records, or error dict
+        """
+        resolved = self.resolve_state(state)
+        if not resolved:
+            return [{"error": f"Unknown state: '{state}'. Use a state name, abbreviation, or FIPS code."}]
+        fips, state_name = resolved
+        series_id = self.build_state_series_id(fips, measure)
+        measure_name = LAUS_MEASURES.get(measure, measure)
+
+        # Check cache first
+        if series_id in self._cache and self.is_cache_valid:
+            logger.info(f"Cache hit for state series {series_id}")
+            return self._cache[series_id]
+
+        # Fetch on demand
+        if not end_year:
+            end_year = str(datetime.now().year - 1)
+        if not start_year:
+            start_year = str(int(end_year) - 2)
+
+        try:
+            result = self._fetch_batch([series_id], start_year, end_year)
+            if result.get("status") != "REQUEST_SUCCEEDED":
+                return [{"error": f"BLS API error: {result.get('message', 'unknown')}"}]
+
+            records = []
+            for series in result.get("Results", {}).get("series", []):
+                for item in series["data"]:
+                    footnotes = ", ".join(
+                        fn["text"] for fn in item.get("footnotes", []) if fn and "text" in fn
+                    )
+                    records.append({
+                        "series_id": series_id,
+                        "series_name": f"{state_name} - {measure_name}",
+                        "state": state_name,
+                        "year": item["year"],
+                        "period": item["period"],
+                        "value": item["value"],
+                        "footnotes": footnotes,
+                    })
+            self._cache[series_id] = records
+            return records
+
+        except requests.RequestException as e:
+            logger.error(f"Error fetching state data: {e}")
+            return [{"error": f"Request failed: {e}"}]
+
+    def get_county_data(
+        self,
+        county_fips: str,
+        county_name: str = "",
+        measure: str = "03",
+        start_year: str | None = None,
+        end_year: str | None = None,
+    ) -> list[dict]:
+        """
+        Fetch LAUS data for a county.
+
+        :param county_fips: 5-digit county FIPS code (e.g. "39049")
+        :param county_name: Optional human-friendly name for the county
+        :param measure: 03=rate, 04=unemployment, 05=employment, 06=labor force
+        """
+        county_fips = county_fips.strip().zfill(5)
+        series_id = self.build_county_series_id(county_fips, measure)
+        measure_name = LAUS_MEASURES.get(measure, measure)
+        label = county_name or f"County FIPS {county_fips}"
+
+        if series_id in self._cache and self.is_cache_valid:
+            logger.info(f"Cache hit for county series {series_id}")
+            return self._cache[series_id]
+
+        if not end_year:
+            end_year = str(datetime.now().year - 1)
+        if not start_year:
+            start_year = str(int(end_year) - 2)
+
+        try:
+            result = self._fetch_batch([series_id], start_year, end_year)
+            if result.get("status") != "REQUEST_SUCCEEDED":
+                return [{"error": f"BLS API error: {result.get('message', 'unknown')}"}]
+
+            records = []
+            for series in result.get("Results", {}).get("series", []):
+                for item in series["data"]:
+                    footnotes = ", ".join(
+                        fn["text"] for fn in item.get("footnotes", []) if fn and "text" in fn
+                    )
+                    records.append({
+                        "series_id": series_id,
+                        "series_name": f"{label} - {measure_name}",
+                        "county": label,
+                        "year": item["year"],
+                        "period": item["period"],
+                        "value": item["value"],
+                        "footnotes": footnotes,
+                    })
+            self._cache[series_id] = records
+            return records
+
+        except requests.RequestException as e:
+            logger.error(f"Error fetching county data: {e}")
+            return [{"error": f"Request failed: {e}"}]
+
+    def list_states(self) -> list[dict]:
+        """List all available states with their FIPS codes and abbreviations."""
+        abbrev_to_state = {v: k for k, v in STATE_ABBREVIATIONS.items()}
+        return [
+            {
+                "state": name,
+                "abbreviation": abbrev_to_state.get(name, ""),
+                "fips": fips,
+                "example_series_id": self.build_state_series_id(fips),
+            }
+            for name, fips in sorted(STATE_FIPS.items())
         ]

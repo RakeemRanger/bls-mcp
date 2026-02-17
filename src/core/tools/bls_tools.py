@@ -63,3 +63,52 @@ class BLSPlugin:
                     "total_records": len(records),
                 }
         return json.dumps(summary, indent=2)
+
+    # ---- State & county tools (LAUS) ----
+
+    @kernel_function(
+        name="get_state_unemployment_data",
+        description=(
+            "Get unemployment data for a US state. Accepts state name (e.g. 'Ohio'), "
+            "abbreviation ('OH'), or FIPS code ('39'). "
+            "Measure codes: 03=unemployment rate (default), 04=unemployment level, "
+            "05=employment level, 06=labor force level."
+        ),
+    )
+    def get_state_data(
+        self,
+        state: Annotated[str, "State name, abbreviation, or FIPS code"],
+        measure: Annotated[str, "LAUS measure code: 03=rate, 04=unemployment, 05=employment, 06=labor force"] = "03",
+    ) -> str:
+        data = self._client.get_state_data(state, measure=measure)
+        if not data:
+            return json.dumps({"error": f"No data found for state: {state}"})
+        return json.dumps(data, indent=2)
+
+    @kernel_function(
+        name="get_county_unemployment_data",
+        description=(
+            "Get unemployment data for a US county by its 5-digit FIPS code. "
+            "Example: '39049' for Franklin County, OH. County data is NOT seasonally adjusted. "
+            "Measure codes: 03=unemployment rate (default), 04=unemployment level, "
+            "05=employment level, 06=labor force level."
+        ),
+    )
+    def get_county_data(
+        self,
+        county_fips: Annotated[str, "5-digit county FIPS code (e.g. '39049')"],
+        county_name: Annotated[str, "Human-readable county name for display"] = "",
+        measure: Annotated[str, "LAUS measure code: 03=rate, 04=unemployment, 05=employment, 06=labor force"] = "03",
+    ) -> str:
+        data = self._client.get_county_data(county_fips, county_name=county_name, measure=measure)
+        if not data:
+            return json.dumps({"error": f"No data found for county FIPS: {county_fips}"})
+        return json.dumps(data, indent=2)
+
+    @kernel_function(
+        name="list_us_states",
+        description="List all US states with their FIPS codes and abbreviations. Useful for looking up FIPS codes.",
+    )
+    def list_states(self) -> str:
+        states = self._client.list_states()
+        return json.dumps(states, indent=2)
