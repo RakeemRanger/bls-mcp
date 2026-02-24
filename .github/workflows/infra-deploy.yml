@@ -6,7 +6,28 @@ permissions:
   contents: read
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bicep CLI
+        run: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          chmod +x ./bicep
+          sudo mv ./bicep /usr/local/bin/bicep
+          bicep --version
+      
+      - name: Build and validate Bicep files
+        run: |
+          bicep build src/infra/main.bicep
+          bicep build src/infra/app/func_app.bicep
+          bicep build src/infra/identity/user_assigned.bicep
+          echo "✓ All Bicep files compiled successfully"
+
   deploy:
+    needs: validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,17 +41,20 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy infrastructure
+        id: deploy
         run: |
+          DEPLOYMENT_NAME="bls-mcp-$(date +%Y%m%d-%H%M%S)"
+          echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
           az deployment sub create \
             --location swedencentral \
             --template-file src/infra/main.bicep \
             --parameters location=swedencentral \
-            --name bls-mcp-$(date +%Y%m%d-%H%M%S)
+            --name $DEPLOYMENT_NAME
       
       - name: Get deployment outputs
         run: |
           az deployment sub show \
-            --name bls-mcp-$(date +%Y%m%d-%H%M%S) \
+            --name ${{ steps.deploy.outputs.deployment_name }} \
             --query properties.outputs
             
 
