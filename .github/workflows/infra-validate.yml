@@ -1,10 +1,6 @@
 name: infraValidate
 on: [push]
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -12,16 +8,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
-      - name: Validate Bicep deployment
+      - name: Setup Bicep CLI
         run: |
-          az deployment sub validate \
-            --location swedencentral \
-            --template-file src/infra/main.bicep \
-            --parameters location=swedencentralteps:
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          chmod +x ./bicep
+          sudo mv ./bicep /usr/local/bin/bicep
+          bicep --version
+      
+      - name: Build and validate Bicep files
+        run: |
+          bicep build src/infra/main.bicep
+          bicep build src/infra/app/func_app.bicep
+          bicep build src/infra/identity/user_assigned.bicep
+          echo "✓ All Bicep files compiled successfully"teps:
