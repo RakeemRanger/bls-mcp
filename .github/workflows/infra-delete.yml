@@ -31,20 +31,16 @@ jobs:
       - name: Delete resource group
         run: |
           # Read resource group name from config
-          if [ "${{ inputs.environment }}" == "dev" ]; then
+          if [ "${{ inputs.environment }}" = "dev" ]; then
             CONFIG_FILE="src/infra/dev-config.json"
           else
             CONFIG_FILE="src/infra/prod-config.json"
           fi
           
-          RG_NAME=$(jq -r '.config.project.resourceGroupName // empty' $CONFIG_FILE)
-          
-          # Fallback to constructed name if not in config
-          if [ -z "$RG_NAME" ]; then
-            NAMING_PREFIX=$(jq -r '.config.project.namingPrefix' $CONFIG_FILE)
-            LOCATION=$(jq -r '.config.project.location' $CONFIG_FILE)
-            RG_NAME="${NAMING_PREFIX}${LOCATION}-rg"
-          fi
+          # Construct resource group name same way bicepparam does
+          NAMING_PREFIX=$(jq -r '.config.project.namingPrefix' $CONFIG_FILE)
+          LOCATION=$(jq -r '.config.project.location' $CONFIG_FILE)
+          RG_NAME="${NAMING_PREFIX}${LOCATION}-rg"
           
           echo "Deleting ${{ inputs.environment }} resource group: $RG_NAME"
           az group delete --name $RG_NAME --yes --no-wait

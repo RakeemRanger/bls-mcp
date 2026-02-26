@@ -5,7 +5,6 @@
         "project": {
             "environment": "dev",
             "name": "bls-mcp-server",
-            "resourceGroupName": "bls-dev-mcp-rg",
             "location": "swedencentral",
             "namingPrefix": "bls-dev-proj-"
         }
