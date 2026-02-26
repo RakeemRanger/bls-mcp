@@ -27,7 +27,7 @@ jobs:
           echo "✓ All Bicep files compiled successfully"
 
   deploy:
-    needs: Validate IaC Deployment
+    needs: validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
