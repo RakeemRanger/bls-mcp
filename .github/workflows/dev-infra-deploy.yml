@@ -41,7 +41,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy BLS MCP infrastructure
-        id: deploy BLS MCP infrastructure
+        id: deployBlsMcp
         run: |
           DEPLOYMENT_NAME="bls-mcp-dev-$(date +%Y%m%d-%H%M%S)"
           echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
