@@ -1,0 +1,66 @@
+name: Dev Infrastructure Deploy
+on: workflow_dispatch
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bicep CLI
+        run: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          chmod +x ./bicep
+          sudo mv ./bicep /usr/local/bin/bicep
+          bicep --version
+      
+      - name: Build and validate Bicep files
+        run: |
+          bicep build-params src/infra/dev_main.bicepparam
+          bicep build src/infra/app/func_app.bicep
+          bicep build src/infra/identity/user_assigned.bicep
+          echo "✓ All Bicep files compiled successfully"
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy infrastructure
+        id: deploy
+        run: |
+          DEPLOYMENT_NAME="bls-mcp-dev-$(date +%Y%m%d-%H%M%S)"
+          echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
+          
+          # Get location from config
+          LOCATION=$(jq -r '.config.project.location' src/infra/dev-config.json)
+          
+          az deployment sub create \
+            --location $LOCATION \
+            --template-file src/infra/main.bicep \
+            --parameters src/infra/dev_main.bicepparam \
+            --name $DEPLOYMENT_NAME
+      
+      - name: Get deployment outputs
+        run: |
+          az deployment sub show \
+            --name ${{ steps.deploy.outputs.deployment_name }} \
+            --query properties.outputs
+            
+
+

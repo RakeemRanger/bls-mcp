@@ -1,0 +1,23 @@
+name: Dev Infrastructure Validate
+on: [push]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bicep CLI
+        run: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          chmod +x ./bicep
+          sudo mv ./bicep /usr/local/bin/bicep
+          bicep --version
+      
+      - name: Build and validate Bicep files
+        run: |
+          bicep build-params src/infra/dev_main.bicepparam
+          bicep build src/infra/app/func_app.bicep
+          bicep build src/infra/identity/user_assigned.bicep
+          echo "All Bicep files compiled successfully"teps:

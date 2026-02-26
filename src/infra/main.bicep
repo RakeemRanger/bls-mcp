@@ -2,12 +2,10 @@ targetScope = 'subscription'
 
 @description('location of resource group')
 param location string
-
-var resource_name_prefix = 'bls-proj-${location}-'
-var resource_group_name = '${resource_name_prefix}rg'
-var func_app_name = '${resource_name_prefix}func-app'
-var func_app_plan_name = '${resource_name_prefix}app-plan'
-var func_app_user_assigned_msi_name = '${resource_name_prefix}func-app-msi'
+param resource_group_name string
+param func_app_name string
+param func_app_plan_name string
+param func_app_user_assigned_msi_name string
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: resource_group_name

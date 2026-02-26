@@ -1,4 +1,4 @@
-name: infraDeploy
+name: Prod Infrastructure Deploy
 on: workflow_dispatch
 
 permissions:
@@ -21,7 +21,7 @@ jobs:
       
       - name: Build and validate Bicep files
         run: |
-          bicep build src/infra/main.bicep
+          bicep build-params src/infra/prod_main.bicepparam
           bicep build src/infra/app/func_app.bicep
           bicep build src/infra/identity/user_assigned.bicep
           echo "✓ All Bicep files compiled successfully"
@@ -29,6 +29,7 @@ jobs:
   deploy:
     needs: validate
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,12 +44,16 @@ jobs:
       - name: Deploy infrastructure
         id: deploy
         run: |
-          DEPLOYMENT_NAME="bls-mcp-$(date +%Y%m%d-%H%M%S)"
+          DEPLOYMENT_NAME="bls-mcp-prod-$(date +%Y%m%d-%H%M%S)"
           echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
+          
+          # Get location from config
+          LOCATION=$(jq -r '.config.project.location' src/infra/prod-config.json)
+          
           az deployment sub create \
-            --location swedencentral \
+            --location $LOCATION \
             --template-file src/infra/main.bicep \
-            --parameters location=swedencentral \
+            --parameters src/infra/prod_main.bicepparam \
             --name $DEPLOYMENT_NAME
       
       - name: Get deployment outputs

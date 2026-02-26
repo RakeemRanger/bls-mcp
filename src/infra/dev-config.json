@@ -1,0 +1,13 @@
+{
+    "$schema": "https://schema.management.azure/schemas/2019-04-01/deploymentParameters.json#",
+    "description": "bls mcp",
+    "config": {
+        "project": {
+            "environment": "dev",
+            "name": "bls-mcp-server",
+            "resourceGroupName": "bls-dev-mcp-rg",
+            "location": "swedencentral",
+            "namingPrefix": "bls-dev-proj-"
+        }
+    }
+}

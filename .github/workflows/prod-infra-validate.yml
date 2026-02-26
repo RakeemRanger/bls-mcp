@@ -1,4 +1,4 @@
-name: infraValidate
+name: Prod Infrastructure Validate
 on: [push]
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
       
       - name: Build and validate Bicep files
         run: |
-          bicep build src/infra/main.bicep
+          bicep build-params src/infra/prod_main.bicepparam
           bicep build src/infra/app/func_app.bicep
           bicep build src/infra/identity/user_assigned.bicep
-          echo "✓ All Bicep files compiled successfully"teps:
+          echo "All Bicep files compiled successfully"teps:
