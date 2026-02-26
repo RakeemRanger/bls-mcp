@@ -27,7 +27,7 @@ jobs:
           echo "✓ All Bicep files compiled successfully"
 
   deploy:
-    needs: validate
+    needs: Validate IaC Deployment
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -40,8 +40,8 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy infrastructure
-        id: deploy
+      - name: Deploy BLS MCP infrastructure
+        id: deploy BLS MCP infrastructure
         run: |
           DEPLOYMENT_NAME="bls-mcp-dev-$(date +%Y%m%d-%H%M%S)"
           echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
