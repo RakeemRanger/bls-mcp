@@ -1,0 +1,8 @@
+{
+    "dev": {
+        "resource_group_id": "/subscriptions/YOUR_SUBSCRIPTION_ID/resourceGroups/YOUR_RESOURCE_GROUP"
+    },
+    "prod": {
+        "resource_group_id": "/subscriptions/YOUR_SUBSCRIPTION_ID/resourceGroups/YOUR_RESOURCE_GROUP"
+    }
+}

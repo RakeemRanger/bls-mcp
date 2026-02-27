@@ -42,6 +42,9 @@ internal/
 # dotenv
 *.env
 
+# Config files with sensitive data
+src/core/configs/configs.json
+
 # pytest / coverage
 htmlcov/
 .tox/
