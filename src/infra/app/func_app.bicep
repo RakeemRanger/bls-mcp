@@ -2,6 +2,7 @@ param location string = resourceGroup().location
 param app_service_plan_name string
 param func_app_name string
 param func_app_msi_id string
+param environment_name string = 'dev'
 
 var storage_account_name = 'blsstorage${uniqueString(resourceGroup().id)}'
 
@@ -60,6 +61,14 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'WEBSITE_CONTENTSHARE'
           value: toLower(func_app_name)
+        }
+        {
+          name: 'ENVIRONMENT'
+          value: environment_name
+        }
+        {
+          name: 'AZURE_SUBSCRIPTION_ID'
+          value: subscription().subscriptionId
         }
       ]
     }

@@ -1,0 +1,1 @@
+PROMPT_RELATIVE_PATH = 'bls-mcp/src/core/rag/prompts/templates'

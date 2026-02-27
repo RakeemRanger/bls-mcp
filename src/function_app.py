@@ -7,8 +7,15 @@ from core.kernel import blsKernel
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
-# Initialize kernel once globally
-kernel = blsKernel()
+# Lazy initialize kernel on first request
+_kernel = None
+
+def get_kernel() -> blsKernel:
+    """Get or create kernel instance (singleton pattern)"""
+    global _kernel
+    if _kernel is None:
+        _kernel = blsKernel()
+    return _kernel
 
 @app.mcp_tool_trigger(
     arg_name="context",
@@ -43,8 +50,9 @@ async def mcp_trigger(context) -> str:
         
         logging.info(f"MCP trigger received query: {query}")
         
-        # Run query through kernel
-        response = asyncio.run(kernel.run(query))
+        # Run query through kernel (lazy initialized)
+        kernel = get_kernel()
+        response = await kernel.run(query)
         
         return response
         

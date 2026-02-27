@@ -36,6 +36,9 @@ blsmcp-venv/
  
 .idea/
 
+# Internal documentation
+internal/
+
 # dotenv
 *.env
 

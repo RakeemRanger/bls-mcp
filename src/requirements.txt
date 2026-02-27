@@ -4,5 +4,10 @@
 
 azure-functions
 azure-identity
-azure-ai-inference
+openai>=1.0.0
 semantic-kernel
+
+# Azure Management SDKs for dynamic configuration
+azure-mgmt-resource
+azure-mgmt-cognitiveservices
+azure-mgmt-web

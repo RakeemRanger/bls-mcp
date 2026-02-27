@@ -2,8 +2,8 @@ param location string = resourceGroup().location
 param openai_account_name string
 param openai_account_msi_id string
 param model_deployment_name string
-param model_name string = 'gpt-4'
-param model_version string = '0613'
+param model_name string = 'gpt-4o'
+param model_version string = '2024-08-06'
 param deployment_capacity int = 10
 
 resource openaiAccount 'Microsoft.CognitiveServices/accounts@2024-10-01' = {

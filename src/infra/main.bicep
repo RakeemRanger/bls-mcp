@@ -9,6 +9,7 @@ param func_app_user_assigned_msi_name string
 param openai_account_name string
 param openai_account_msi_name string
 param model_deployment_name string
+param environment_name string = 'dev'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: resource_group_name
@@ -30,6 +31,7 @@ module functionApp 'app/func_app.bicep' = {
     app_service_plan_name: func_app_plan_name
     func_app_name: func_app_name
     func_app_msi_id: funcUserAssignedMsi.outputs.msi_id
+    environment_name: environment_name
   }
 }
 
@@ -51,5 +53,7 @@ module openaiDeployment 'foundry/foundry.bicep' = {
   }
 }
 
+output resource_group_id string = resourceGroup.id
 output openai_endpoint string = openaiDeployment.outputs.openai_endpoint
+output func_app_name string = func_app_name
 output func_app_url string = functionApp.outputs.func_app_endpoint

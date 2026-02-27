@@ -3,7 +3,7 @@ on: workflow_dispatch
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -56,10 +56,61 @@ jobs:
             --name $DEPLOYMENT_NAME
       
       - name: Get deployment outputs
+        id: outputs
         run: |
-          az deployment sub show \
-            --name ${{ steps.deploy.outputs.deployment_name }} \
-            --query properties.outputs
-            
+          echo "Retrieving deployment outputs..."
+          OUTPUTS=$(az deployment sub show \
+            --name ${{ steps.deployBlsMcp.outputs.deployment_name }} \
+            --query 'properties.outputs' -o json)
+          
+          RG_ID=$(echo "$OUTPUTS" | jq -r '.resource_group_id.value')
+          OPENAI_ENDPOINT=$(echo "$OUTPUTS" | jq -r '.openai_endpoint.value')
+          FUNC_APP_NAME=$(echo "$OUTPUTS" | jq -r '.func_app_name.value')
+          RG_NAME=$(echo "$RG_ID" | awk -F'/' '{print $NF}')
+          
+          echo "resource_group_id=$RG_ID" >> $GITHUB_OUTPUT
+          echo "openai_endpoint=$OPENAI_ENDPOINT" >> $GITHUB_OUTPUT
+          echo "func_app_name=$FUNC_APP_NAME" >> $GITHUB_OUTPUT
+          echo "resource_group_name=$RG_NAME" >> $GITHUB_OUTPUT
+          
+          echo "Resource Group ID: $RG_ID"
+          echo "OpenAI Endpoint: $OPENAI_ENDPOINT"
+          echo "Function App: $FUNC_APP_NAME"
+      
+      - name: Configure function app settings
+        run: |
+          echo "Configuring function app settings..."
+          az functionapp config appsettings set \
+            --name ${{ steps.outputs.outputs.func_app_name }} \
+            --resource-group ${{ steps.outputs.outputs.resource_group_name }} \
+            --settings \
+              AZURE_AI_INFERENCE_ENDPOINT="${{ steps.outputs.outputs.openai_endpoint }}" \
+              AZURE_RESOURCE_GROUP_ID="${{ steps.outputs.outputs.resource_group_id }}"
+          
+          echo "✓ Function app configured"
+      
+      - name: Update configs.json
+        run: |
+          RG_ID="${{ steps.outputs.outputs.resource_group_id }}"
+          
+          # Update dev section in configs.json
+          jq --arg rg_id "$RG_ID" \
+             '.dev.resource_group_id = $rg_id' \
+             src/core/configs/configs.json > configs_updated.json
+          
+          mv configs_updated.json src/core/configs/configs.json
+          cat src/core/configs/configs.json
+      
+      - name: Commit updated configs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/core/configs/configs.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update dev resource group ID [skip ci]"
+            git push
+          fi
 
 
