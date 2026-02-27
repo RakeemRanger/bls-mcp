@@ -8,9 +8,10 @@ from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoic
 from semantic_kernel.core_plugins.time_plugin import TimePlugin
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
 from core.tools.info import BlsMcpInformationPlugin
 from core.configs.config_loader import AzureConfigLoader
-
+from rag.rag import RagResults
 
 class blsKernel:
     """

@@ -8,3 +8,9 @@ from configs.CONSTANTS import (
 )
 
 prompt_absolute_path = str(Path(PROMPT_RELATIVE_PATH).resolve())
+
+class RagResults:
+    """
+    Returns RAG results
+    """
+    pass

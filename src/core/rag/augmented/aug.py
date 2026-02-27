@@ -1,4 +1,4 @@
-from prompts.prompt_loader import PromptLoader
+from core.prompts.utils.prompt_loader import PromptLoader
 
 class AugmentationManager:
     """

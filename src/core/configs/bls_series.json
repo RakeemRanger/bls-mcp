@@ -1,0 +1,704 @@
+{
+  "national": {
+    "unemployment": {
+      "unemployment_rate": {
+        "series_id": "LNS14000000",
+        "name": "Unemployment Rate - 16 years and over",
+        "seasonal_adjustment": "Seasonally Adjusted"
+      },
+      "unemployed_level": {
+        "series_id": "LNS13000000",
+        "name": "Unemployed - 16 years and over",
+        "seasonal_adjustment": "Seasonally Adjusted"
+      }
+    },
+    "employment": {
+      "total_nonfarm": {
+        "series_id": "CES0000000001",
+        "name": "Total Nonfarm Employment",
+        "seasonal_adjustment": "Seasonally Adjusted"
+      },
+      "total_private": {
+        "series_id": "CES0500000001",
+        "name": "Total Private Employment",
+        "seasonal_adjustment": "Seasonally Adjusted"
+      },
+      "labor_force": {
+        "series_id": "LNS11000000",
+        "name": "Civilian Labor Force - 16 years and over",
+        "seasonal_adjustment": "Seasonally Adjusted"
+      },
+      "employed_level": {
+        "series_id": "LNS12000000",
+        "name": "Employed - 16 years and over",
+        "seasonal_adjustment": "Seasonally Adjusted"
+      }
+    }
+  },
+  "state": {
+    "alabama": {
+      "fips": "01",
+      "name": "Alabama",
+      "unemployment_rate_series_id": "LASST010000000003",
+      "employment_level_series_id": "LASST010000000005",
+      "labor_force_series_id": "LASST010000000006"
+    },
+    "alaska": {
+      "fips": "02",
+      "name": "Alaska",
+      "unemployment_rate_series_id": "LASST020000000003",
+      "employment_level_series_id": "LASST020000000005",
+      "labor_force_series_id": "LASST020000000006"
+    },
+    "arizona": {
+      "fips": "04",
+      "name": "Arizona",
+      "unemployment_rate_series_id": "LASST040000000003",
+      "employment_level_series_id": "LASST040000000005",
+      "labor_force_series_id": "LASST040000000006"
+    },
+    "arkansas": {
+      "fips": "05",
+      "name": "Arkansas",
+      "unemployment_rate_series_id": "LASST050000000003",
+      "employment_level_series_id": "LASST050000000005",
+      "labor_force_series_id": "LASST050000000006"
+    },
+    "california": {
+      "fips": "06",
+      "name": "California",
+      "unemployment_rate_series_id": "LASST060000000003",
+      "employment_level_series_id": "LASST060000000005",
+      "labor_force_series_id": "LASST060000000006"
+    },
+    "colorado": {
+      "fips": "08",
+      "name": "Colorado",
+      "unemployment_rate_series_id": "LASST080000000003",
+      "employment_level_series_id": "LASST080000000005",
+      "labor_force_series_id": "LASST080000000006"
+    },
+    "connecticut": {
+      "fips": "09",
+      "name": "Connecticut",
+      "unemployment_rate_series_id": "LASST090000000003",
+      "employment_level_series_id": "LASST090000000005",
+      "labor_force_series_id": "LASST090000000006"
+    },
+    "delaware": {
+      "fips": "10",
+      "name": "Delaware",
+      "unemployment_rate_series_id": "LASST100000000003",
+      "employment_level_series_id": "LASST100000000005",
+      "labor_force_series_id": "LASST100000000006"
+    },
+    "district_of_columbia": {
+      "fips": "11",
+      "name": "District of Columbia",
+      "unemployment_rate_series_id": "LASST110000000003",
+      "employment_level_series_id": "LASST110000000005",
+      "labor_force_series_id": "LASST110000000006"
+    },
+    "florida": {
+      "fips": "12",
+      "name": "Florida",
+      "unemployment_rate_series_id": "LASST120000000003",
+      "employment_level_series_id": "LASST120000000005",
+      "labor_force_series_id": "LASST120000000006"
+    },
+    "georgia": {
+      "fips": "13",
+      "name": "Georgia",
+      "unemployment_rate_series_id": "LASST130000000003",
+      "employment_level_series_id": "LASST130000000005",
+      "labor_force_series_id": "LASST130000000006"
+    },
+    "hawaii": {
+      "fips": "15",
+      "name": "Hawaii",
+      "unemployment_rate_series_id": "LASST150000000003",
+      "employment_level_series_id": "LASST150000000005",
+      "labor_force_series_id": "LASST150000000006"
+    },
+    "idaho": {
+      "fips": "16",
+      "name": "Idaho",
+      "unemployment_rate_series_id": "LASST160000000003",
+      "employment_level_series_id": "LASST160000000005",
+      "labor_force_series_id": "LASST160000000006"
+    },
+    "illinois": {
+      "fips": "17",
+      "name": "Illinois",
+      "unemployment_rate_series_id": "LASST170000000003",
+      "employment_level_series_id": "LASST170000000005",
+      "labor_force_series_id": "LASST170000000006"
+    },
+    "indiana": {
+      "fips": "18",
+      "name": "Indiana",
+      "unemployment_rate_series_id": "LASST180000000003",
+      "employment_level_series_id": "LASST180000000005",
+      "labor_force_series_id": "LASST180000000006"
+    },
+    "iowa": {
+      "fips": "19",
+      "name": "Iowa",
+      "unemployment_rate_series_id": "LASST190000000003",
+      "employment_level_series_id": "LASST190000000005",
+      "labor_force_series_id": "LASST190000000006"
+    },
+    "kansas": {
+      "fips": "20",
+      "name": "Kansas",
+      "unemployment_rate_series_id": "LASST200000000003",
+      "employment_level_series_id": "LASST200000000005",
+      "labor_force_series_id": "LASST200000000006"
+    },
+    "kentucky": {
+      "fips": "21",
+      "name": "Kentucky",
+      "unemployment_rate_series_id": "LASST210000000003",
+      "employment_level_series_id": "LASST210000000005",
+      "labor_force_series_id": "LASST210000000006"
+    },
+    "louisiana": {
+      "fips": "22",
+      "name": "Louisiana",
+      "unemployment_rate_series_id": "LASST220000000003",
+      "employment_level_series_id": "LASST220000000005",
+      "labor_force_series_id": "LASST220000000006"
+    },
+    "maine": {
+      "fips": "23",
+      "name": "Maine",
+      "unemployment_rate_series_id": "LASST230000000003",
+      "employment_level_series_id": "LASST230000000005",
+      "labor_force_series_id": "LASST230000000006"
+    },
+    "maryland": {
+      "fips": "24",
+      "name": "Maryland",
+      "unemployment_rate_series_id": "LASST240000000003",
+      "employment_level_series_id": "LASST240000000005",
+      "labor_force_series_id": "LASST240000000006"
+    },
+    "massachusetts": {
+      "fips": "25",
+      "name": "Massachusetts",
+      "unemployment_rate_series_id": "LASST250000000003",
+      "employment_level_series_id": "LASST250000000005",
+      "labor_force_series_id": "LASST250000000006"
+    },
+    "michigan": {
+      "fips": "26",
+      "name": "Michigan",
+      "unemployment_rate_series_id": "LASST260000000003",
+      "employment_level_series_id": "LASST260000000005",
+      "labor_force_series_id": "LASST260000000006"
+    },
+    "minnesota": {
+      "fips": "27",
+      "name": "Minnesota",
+      "unemployment_rate_series_id": "LASST270000000003",
+      "employment_level_series_id": "LASST270000000005",
+      "labor_force_series_id": "LASST270000000006"
+    },
+    "mississippi": {
+      "fips": "28",
+      "name": "Mississippi",
+      "unemployment_rate_series_id": "LASST280000000003",
+      "employment_level_series_id": "LASST280000000005",
+      "labor_force_series_id": "LASST280000000006"
+    },
+    "missouri": {
+      "fips": "29",
+      "name": "Missouri",
+      "unemployment_rate_series_id": "LASST290000000003",
+      "employment_level_series_id": "LASST290000000005",
+      "labor_force_series_id": "LASST290000000006"
+    },
+    "montana": {
+      "fips": "30",
+      "name": "Montana",
+      "unemployment_rate_series_id": "LASST300000000003",
+      "employment_level_series_id": "LASST300000000005",
+      "labor_force_series_id": "LASST300000000006"
+    },
+    "nebraska": {
+      "fips": "31",
+      "name": "Nebraska",
+      "unemployment_rate_series_id": "LASST310000000003",
+      "employment_level_series_id": "LASST310000000005",
+      "labor_force_series_id": "LASST310000000006"
+    },
+    "nevada": {
+      "fips": "32",
+      "name": "Nevada",
+      "unemployment_rate_series_id": "LASST320000000003",
+      "employment_level_series_id": "LASST320000000005",
+      "labor_force_series_id": "LASST320000000006"
+    },
+    "new_hampshire": {
+      "fips": "33",
+      "name": "New Hampshire",
+      "unemployment_rate_series_id": "LASST330000000003",
+      "employment_level_series_id": "LASST330000000005",
+      "labor_force_series_id": "LASST330000000006"
+    },
+    "new_jersey": {
+      "fips": "34",
+      "name": "New Jersey",
+      "unemployment_rate_series_id": "LASST340000000003",
+      "employment_level_series_id": "LASST340000000005",
+      "labor_force_series_id": "LASST340000000006"
+    },
+    "new_mexico": {
+      "fips": "35",
+      "name": "New Mexico",
+      "unemployment_rate_series_id": "LASST350000000003",
+      "employment_level_series_id": "LASST350000000005",
+      "labor_force_series_id": "LASST350000000006"
+    },
+    "new_york": {
+      "fips": "36",
+      "name": "New York",
+      "unemployment_rate_series_id": "LASST360000000003",
+      "employment_level_series_id": "LASST360000000005",
+      "labor_force_series_id": "LASST360000000006"
+    },
+    "north_carolina": {
+      "fips": "37",
+      "name": "North Carolina",
+      "unemployment_rate_series_id": "LASST370000000003",
+      "employment_level_series_id": "LASST370000000005",
+      "labor_force_series_id": "LASST370000000006"
+    },
+    "north_dakota": {
+      "fips": "38",
+      "name": "North Dakota",
+      "unemployment_rate_series_id": "LASST380000000003",
+      "employment_level_series_id": "LASST380000000005",
+      "labor_force_series_id": "LASST380000000006"
+    },
+    "ohio": {
+      "fips": "39",
+      "name": "Ohio",
+      "unemployment_rate_series_id": "LASST390000000003",
+      "employment_level_series_id": "LASST390000000005",
+      "labor_force_series_id": "LASST390000000006"
+    },
+    "oklahoma": {
+      "fips": "40",
+      "name": "Oklahoma",
+      "unemployment_rate_series_id": "LASST400000000003",
+      "employment_level_series_id": "LASST400000000005",
+      "labor_force_series_id": "LASST400000000006"
+    },
+    "oregon": {
+      "fips": "41",
+      "name": "Oregon",
+      "unemployment_rate_series_id": "LASST410000000003",
+      "employment_level_series_id": "LASST410000000005",
+      "labor_force_series_id": "LASST410000000006"
+    },
+    "pennsylvania": {
+      "fips": "42",
+      "name": "Pennsylvania",
+      "unemployment_rate_series_id": "LASST420000000003",
+      "employment_level_series_id": "LASST420000000005",
+      "labor_force_series_id": "LASST420000000006"
+    },
+    "rhode_island": {
+      "fips": "44",
+      "name": "Rhode Island",
+      "unemployment_rate_series_id": "LASST440000000003",
+      "employment_level_series_id": "LASST440000000005",
+      "labor_force_series_id": "LASST440000000006"
+    },
+    "south_carolina": {
+      "fips": "45",
+      "name": "South Carolina",
+      "unemployment_rate_series_id": "LASST450000000003",
+      "employment_level_series_id": "LASST450000000005",
+      "labor_force_series_id": "LASST450000000006"
+    },
+    "south_dakota": {
+      "fips": "46",
+      "name": "South Dakota",
+      "unemployment_rate_series_id": "LASST460000000003",
+      "employment_level_series_id": "LASST460000000005",
+      "labor_force_series_id": "LASST460000000006"
+    },
+    "tennessee": {
+      "fips": "47",
+      "name": "Tennessee",
+      "unemployment_rate_series_id": "LASST470000000003",
+      "employment_level_series_id": "LASST470000000005",
+      "labor_force_series_id": "LASST470000000006"
+    },
+    "texas": {
+      "fips": "48",
+      "name": "Texas",
+      "unemployment_rate_series_id": "LASST480000000003",
+      "employment_level_series_id": "LASST480000000005",
+      "labor_force_series_id": "LASST480000000006"
+    },
+    "utah": {
+      "fips": "49",
+      "name": "Utah",
+      "unemployment_rate_series_id": "LASST490000000003",
+      "employment_level_series_id": "LASST490000000005",
+      "labor_force_series_id": "LASST490000000006"
+    },
+    "vermont": {
+      "fips": "50",
+      "name": "Vermont",
+      "unemployment_rate_series_id": "LASST500000000003",
+      "employment_level_series_id": "LASST500000000005",
+      "labor_force_series_id": "LASST500000000006"
+    },
+    "virginia": {
+      "fips": "51",
+      "name": "Virginia",
+      "unemployment_rate_series_id": "LASST510000000003",
+      "employment_level_series_id": "LASST510000000005",
+      "labor_force_series_id": "LASST510000000006"
+    },
+    "washington": {
+      "fips": "53",
+      "name": "Washington",
+      "unemployment_rate_series_id": "LASST530000000003",
+      "employment_level_series_id": "LASST530000000005",
+      "labor_force_series_id": "LASST530000000006"
+    },
+    "west_virginia": {
+      "fips": "54",
+      "name": "West Virginia",
+      "unemployment_rate_series_id": "LASST540000000003",
+      "employment_level_series_id": "LASST540000000005",
+      "labor_force_series_id": "LASST540000000006"
+    },
+    "wisconsin": {
+      "fips": "55",
+      "name": "Wisconsin",
+      "unemployment_rate_series_id": "LASST550000000003",
+      "employment_level_series_id": "LASST550000000005",
+      "labor_force_series_id": "LASST550000000006"
+    },
+    "wyoming": {
+      "fips": "56",
+      "name": "Wyoming",
+      "unemployment_rate_series_id": "LASST560000000003",
+      "employment_level_series_id": "LASST560000000005",
+      "labor_force_series_id": "LASST560000000006"
+    },
+    "puerto_rico": {
+      "fips": "72",
+      "name": "Puerto Rico",
+      "unemployment_rate_series_id": "LASST720000000003",
+      "employment_level_series_id": "LASST720000000005",
+      "labor_force_series_id": "LASST720000000006"
+    }
+  },
+  "county": {
+    "los_angeles_ca": {
+      "fips": "06037",
+      "name": "Los Angeles County",
+      "state": "California",
+      "state_fips": "06",
+      "unemployment_rate_series_id": "LAUCN060370000000003",
+      "employment_level_series_id": "LAUCN060370000000005",
+      "labor_force_series_id": "LAUCN060370000000006"
+    },
+    "cook_il": {
+      "fips": "17031",
+      "name": "Cook County",
+      "state": "Illinois",
+      "state_fips": "17",
+      "unemployment_rate_series_id": "LAUCN170310000000003",
+      "employment_level_series_id": "LAUCN170310000000005",
+      "labor_force_series_id": "LAUCN170310000000006"
+    },
+    "harris_tx": {
+      "fips": "48201",
+      "name": "Harris County",
+      "state": "Texas",
+      "state_fips": "48",
+      "unemployment_rate_series_id": "LAUCN482010000000003",
+      "employment_level_series_id": "LAUCN482010000000005",
+      "labor_force_series_id": "LAUCN482010000000006"
+    },
+    "maricopa_az": {
+      "fips": "04013",
+      "name": "Maricopa County",
+      "state": "Arizona",
+      "state_fips": "04",
+      "unemployment_rate_series_id": "LAUCN040130000000003",
+      "employment_level_series_id": "LAUCN040130000000005",
+      "labor_force_series_id": "LAUCN040130000000006"
+    },
+    "san_diego_ca": {
+      "fips": "06073",
+      "name": "San Diego County",
+      "state": "California",
+      "state_fips": "06",
+      "unemployment_rate_series_id": "LAUCN060730000000003",
+      "employment_level_series_id": "LAUCN060730000000005",
+      "labor_force_series_id": "LAUCN060730000000006"
+    },
+    "orange_ca": {
+      "fips": "06059",
+      "name": "Orange County",
+      "state": "California",
+      "state_fips": "06",
+      "unemployment_rate_series_id": "LAUCN060590000000003",
+      "employment_level_series_id": "LAUCN060590000000005",
+      "labor_force_series_id": "LAUCN060590000000006"
+    },
+    "miami_dade_fl": {
+      "fips": "12086",
+      "name": "Miami-Dade County",
+      "state": "Florida",
+      "state_fips": "12",
+      "unemployment_rate_series_id": "LAUCN120860000000003",
+      "employment_level_series_id": "LAUCN120860000000005",
+      "labor_force_series_id": "LAUCN120860000000006"
+    },
+    "dallas_tx": {
+      "fips": "48113",
+      "name": "Dallas County",
+      "state": "Texas",
+      "state_fips": "48",
+      "unemployment_rate_series_id": "LAUCN481130000000003",
+      "employment_level_series_id": "LAUCN481130000000005",
+      "labor_force_series_id": "LAUCN481130000000006"
+    },
+    "kings_ny": {
+      "fips": "36047",
+      "name": "Kings County (Brooklyn)",
+      "state": "New York",
+      "state_fips": "36",
+      "unemployment_rate_series_id": "LAUCN360470000000003",
+      "employment_level_series_id": "LAUCN360470000000005",
+      "labor_force_series_id": "LAUCN360470000000006"
+    },
+    "queens_ny": {
+      "fips": "36081",
+      "name": "Queens County",
+      "state": "New York",
+      "state_fips": "36",
+      "unemployment_rate_series_id": "LAUCN360810000000003",
+      "employment_level_series_id": "LAUCN360810000000005",
+      "labor_force_series_id": "LAUCN360810000000006"
+    },
+    "riverside_ca": {
+      "fips": "06065",
+      "name": "Riverside County",
+      "state": "California",
+      "state_fips": "06",
+      "unemployment_rate_series_id": "LAUCN060650000000003",
+      "employment_level_series_id": "LAUCN060650000000005",
+      "labor_force_series_id": "LAUCN060650000000006"
+    },
+    "san_bernardino_ca": {
+      "fips": "06071",
+      "name": "San Bernardino County",
+      "state": "California",
+      "state_fips": "06",
+      "unemployment_rate_series_id": "LAUCN060710000000003",
+      "employment_level_series_id": "LAUCN060710000000005",
+      "labor_force_series_id": "LAUCN060710000000006"
+    },
+    "clark_nv": {
+      "fips": "32003",
+      "name": "Clark County",
+      "state": "Nevada",
+      "state_fips": "32",
+      "unemployment_rate_series_id": "LAUCN320030000000003",
+      "employment_level_series_id": "LAUCN320030000000005",
+      "labor_force_series_id": "LAUCN320030000000006"
+    },
+    "tarrant_tx": {
+      "fips": "48439",
+      "name": "Tarrant County",
+      "state": "Texas",
+      "state_fips": "48",
+      "unemployment_rate_series_id": "LAUCN484390000000003",
+      "employment_level_series_id": "LAUCN484390000000005",
+      "labor_force_series_id": "LAUCN484390000000006"
+    },
+    "king_wa": {
+      "fips": "53033",
+      "name": "King County",
+      "state": "Washington",
+      "state_fips": "53",
+      "unemployment_rate_series_id": "LAUCN530330000000003",
+      "employment_level_series_id": "LAUCN530330000000005",
+      "labor_force_series_id": "LAUCN530330000000006"
+    },
+    "santa_clara_ca": {
+      "fips": "06085",
+      "name": "Santa Clara County",
+      "state": "California",
+      "state_fips": "06",
+      "unemployment_rate_series_id": "LAUCN060850000000003",
+      "employment_level_series_id": "LAUCN060850000000005",
+      "labor_force_series_id": "LAUCN060850000000006"
+    },
+    "broward_fl": {
+      "fips": "12011",
+      "name": "Broward County",
+      "state": "Florida",
+      "state_fips": "12",
+      "unemployment_rate_series_id": "LAUCN120110000000003",
+      "employment_level_series_id": "LAUCN120110000000005",
+      "labor_force_series_id": "LAUCN120110000000006"
+    },
+    "wayne_mi": {
+      "fips": "26163",
+      "name": "Wayne County",
+      "state": "Michigan",
+      "state_fips": "26",
+      "unemployment_rate_series_id": "LAUCN261630000000003",
+      "employment_level_series_id": "LAUCN261630000000005",
+      "labor_force_series_id": "LAUCN261630000000006"
+    },
+    "bexar_tx": {
+      "fips": "48029",
+      "name": "Bexar County",
+      "state": "Texas",
+      "state_fips": "48",
+      "unemployment_rate_series_id": "LAUCN480290000000003",
+      "employment_level_series_id": "LAUCN480290000000005",
+      "labor_force_series_id": "LAUCN480290000000006"
+    },
+    "new_york_ny": {
+      "fips": "36061",
+      "name": "New York County (Manhattan)",
+      "state": "New York",
+      "state_fips": "36",
+      "unemployment_rate_series_id": "LAUCN360610000000003",
+      "employment_level_series_id": "LAUCN360610000000005",
+      "labor_force_series_id": "LAUCN360610000000006"
+    },
+    "alameda_ca": {
+      "fips": "06001",
+      "name": "Alameda County",
+      "state": "California",
+      "state_fips": "06",
+      "unemployment_rate_series_id": "LAUCN060010000000003",
+      "employment_level_series_id": "LAUCN060010000000005",
+      "labor_force_series_id": "LAUCN060010000000006"
+    },
+    "palm_beach_fl": {
+      "fips": "12099",
+      "name": "Palm Beach County",
+      "state": "Florida",
+      "state_fips": "12",
+      "unemployment_rate_series_id": "LAUCN120990000000003",
+      "employment_level_series_id": "LAUCN120990000000005",
+      "labor_force_series_id": "LAUCN120990000000006"
+    },
+    "suffolk_ny": {
+      "fips": "36103",
+      "name": "Suffolk County",
+      "state": "New York",
+      "state_fips": "36",
+      "unemployment_rate_series_id": "LAUCN361030000000003",
+      "employment_level_series_id": "LAUCN361030000000005",
+      "labor_force_series_id": "LAUCN361030000000006"
+    },
+    "middlesex_ma": {
+      "fips": "25017",
+      "name": "Middlesex County",
+      "state": "Massachusetts",
+      "state_fips": "25",
+      "unemployment_rate_series_id": "LAUCN250170000000003",
+      "employment_level_series_id": "LAUCN250170000000005",
+      "labor_force_series_id": "LAUCN250170000000006"
+    },
+    "philadelphia_pa": {
+      "fips": "42101",
+      "name": "Philadelphia County",
+      "state": "Pennsylvania",
+      "state_fips": "42",
+      "unemployment_rate_series_id": "LAUCN421010000000003",
+      "employment_level_series_id": "LAUCN421010000000005",
+      "labor_force_series_id": "LAUCN421010000000006"
+    },
+    "nassau_ny": {
+      "fips": "36059",
+      "name": "Nassau County",
+      "state": "New York",
+      "state_fips": "36",
+      "unemployment_rate_series_id": "LAUCN360590000000003",
+      "employment_level_series_id": "LAUCN360590000000005",
+      "labor_force_series_id": "LAUCN360590000000006"
+    },
+    "cuyahoga_oh": {
+      "fips": "39035",
+      "name": "Cuyahoga County",
+      "state": "Ohio",
+      "state_fips": "39",
+      "unemployment_rate_series_id": "LAUCN390350000000003",
+      "employment_level_series_id": "LAUCN390350000000005",
+      "labor_force_series_id": "LAUCN390350000000006"
+    },
+    "hennepin_mn": {
+      "fips": "27053",
+      "name": "Hennepin County",
+      "state": "Minnesota",
+      "state_fips": "27",
+      "unemployment_rate_series_id": "LAUCN270530000000003",
+      "employment_level_series_id": "LAUCN270530000000005",
+      "labor_force_series_id": "LAUCN270530000000006"
+    },
+    "franklin_oh": {
+      "fips": "39049",
+      "name": "Franklin County",
+      "state": "Ohio",
+      "state_fips": "39",
+      "unemployment_rate_series_id": "LAUCN390490000000003",
+      "employment_level_series_id": "LAUCN390490000000005",
+      "labor_force_series_id": "LAUCN390490000000006"
+    },
+    "fulton_ga": {
+      "fips": "13121",
+      "name": "Fulton County",
+      "state": "Georgia",
+      "state_fips": "13",
+      "unemployment_rate_series_id": "LAUCN131210000000003",
+      "employment_level_series_id": "LAUCN131210000000005",
+      "labor_force_series_id": "LAUCN131210000000006"
+    },
+    "note": "For additional counties, construct series ID using pattern: LAUCN{5-digit-county-fips}{10-zeros}{measure-code}"
+  },
+  "series_codes": {
+    "laus_measure_codes": {
+      "03": "Unemployment Rate (%)",
+      "04": "Unemployment Level (thousands)",
+      "05": "Employment Level (thousands)",
+      "06": "Labor Force Level (thousands)"
+    },
+    "patterns": {
+      "state": {
+        "format": "LASST{state_fips}0000000{measure}",
+        "example": "LASST060000000003 = California Unemployment Rate",
+        "state_fips": "2-digit state FIPS code (e.g., '06' for California)"
+      },
+      "county": {
+        "format": "LAUCN{county_fips}0000000{measure}",
+        "example": "LAUCN060370000000003 = Los Angeles County Unemployment Rate",
+        "county_fips": "5-digit county FIPS code (state FIPS + 3-digit county code)"
+      }
+    },
+    "notes": {
+      "national_data": "National series are seasonally adjusted",
+      "state_county_data": "State and county series are NOT seasonally adjusted",
+      "data_source": "Local Area Unemployment Statistics (LAUS) program",
+      "frequency": "Monthly data",
+      "fips_format": "County FIPS = State FIPS (2 digits) + County code (3 digits)"
+    }
+  }
+}
