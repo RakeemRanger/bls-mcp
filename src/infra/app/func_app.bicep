@@ -2,28 +2,16 @@ param location string = resourceGroup().location
 param app_service_plan_name string
 param func_app_name string
 param func_app_msi_id string
-
-var storage_account_name = 'blsstorage${uniqueString(resourceGroup().id)}'
-
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storage_account_name
-  location: location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    supportsHttpsTrafficOnly: true
-    minimumTlsVersion: 'TLS1_2'
-  }
-}
+param func_app_msi_client_id string
+param storage_account_name string
+param storage_account_key string
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: app_service_plan_name
   location: location
   sku: {
-    name: 'Y1'
-    tier: 'Dynamic'
+    name: 'B1'
+    tier: 'Basic'
   }
   properties: {
     reserved: true
@@ -37,13 +25,26 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     publicNetworkAccess: 'Enabled'
+    httpsOnly: true
     siteConfig: {
       minTlsVersion: '1.2'
       linuxFxVersion: 'Python|3.11'
       appSettings: [
         {
-          name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          value: '~3'  // Enables built-in App Insights agent
+        }
+        {
+          name: 'AzureWebJobsStorage__accountName'
+          value: storage_account_name
+        }
+        {
+          name: 'AzureWebJobsStorage__credential'
+          value: 'managedidentity'
+        }
+        {
+          name: 'AzureWebJobsStorage__clientId'
+          value: func_app_msi_client_id
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
@@ -55,7 +56,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storage_account_name};AccountKey=${storage_account_key};EndpointSuffix=${environment().suffixes.storage}'
         }
         {
           name: 'WEBSITE_CONTENTSHARE'

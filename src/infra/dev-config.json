@@ -5,8 +5,8 @@
         "project": {
             "environment": "dev",
             "name": "bls-mcp-server",
-            "location": "swedencentral",
-            "namingPrefix": "bls-dev-proj-"
+            "location": "northeurope",
+            "namingPrefix": "bls-dev-"
         }
     }
 }

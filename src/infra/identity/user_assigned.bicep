@@ -7,3 +7,5 @@ resource userAssignedMsi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-
 }
 
 output msi_id string = userAssignedMsi.id
+output msi_principal_id string = userAssignedMsi.properties.principalId
+output msi_client_id string = userAssignedMsi.properties.clientId

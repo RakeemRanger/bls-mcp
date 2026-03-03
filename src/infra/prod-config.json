@@ -3,10 +3,10 @@
     "description": "bls mcp",
     "config": {
         "project": {
-            "environment": "prod",
+            "environment": "production",
             "name": "bls-mcp-server",
             "location": "swedencentral",
-            "namingPrefix": "bls-prod-proj-"
+            "namingPrefix": "bls-prod-"
         }
     }
 }
