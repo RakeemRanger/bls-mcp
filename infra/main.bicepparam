@@ -2,7 +2,7 @@ using 'main.bicep'
 
 // Project naming configuration
 var project_name = 'bls-mcp'
-var location_name = 'swedencentral'
+var location_name = 'eastus2'
 var naming_prefix = '${project_name}-${location_name}-'
 
 // Resource parameters
