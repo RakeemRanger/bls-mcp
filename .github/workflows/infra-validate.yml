@@ -1,4 +1,4 @@
-name: Dev Infrastructure Validate
+name: Infrastructure Validate
 on: [push]
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
       
       - name: Build and validate Bicep files
         run: |
-          bicep build-params infra/dev_main.bicepparam
+          bicep build-params infra/main.bicepparam
           bicep build infra/app/func_app.bicep
           bicep build infra/identity/user_assigned.bicep
-          echo "All Bicep files compiled successfully"teps:
+          echo "All Bicep files compiled successfully"

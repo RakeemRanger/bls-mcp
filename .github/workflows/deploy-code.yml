@@ -1,4 +1,4 @@
-name: Dev Code Deploy
+name: Code Deploy
 on:
   push:
     branches:
@@ -35,13 +35,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Get function app name from config
+      - name: Get function app name
         id: config
         run: |
-          NAMING_PREFIX=$(jq -r '.config.project.namingPrefix' src/infra/dev-config.json)
-          LOCATION=$(jq -r '.config.project.location' src/infra/dev-config.json)
-          FUNC_APP_NAME="${NAMING_PREFIX}${LOCATION}-func-app"
-          RG_NAME="${NAMING_PREFIX}${LOCATION}-rg"
+          FUNC_APP_NAME="bls-mcp-swedencentral-func"
+          RG_NAME="bls-mcp-swedencentral-rg"
           echo "func_app_name=$FUNC_APP_NAME" >> $GITHUB_OUTPUT
           echo "resource_group=$RG_NAME" >> $GITHUB_OUTPUT
 
@@ -50,14 +48,14 @@ jobs:
           echo "Checking if resource group '${{ steps.config.outputs.resource_group }}' exists..."
           if ! az group exists --name "${{ steps.config.outputs.resource_group }}" | grep -q true; then
             echo "ERROR: Resource group '${{ steps.config.outputs.resource_group }}' does not exist."
-            echo "Please deploy infrastructure first using the 'Dev Infrastructure Deploy' workflow."
+            echo "Please deploy infrastructure first using the 'Infrastructure Deploy' workflow."
             exit 1
           fi
           
           echo "Checking if function app '${{ steps.config.outputs.func_app_name }}' exists..."
           if ! az functionapp show --name "${{ steps.config.outputs.func_app_name }}" --resource-group "${{ steps.config.outputs.resource_group }}" &>/dev/null; then
-            echo "ERROR: Function app '${{ steps.config.outputs.func_app_name }}' does not exist in resource group '${{ steps.config.outputs.resource_group }}'."
-            echo "Please deploy infrastructure first using the 'Dev Infrastructure Deploy' workflow."
+            echo "ERROR: Function app '${{ steps.config.outputs.func_app_name }}' does not exist."
+            echo "Please deploy infrastructure first using the 'Infrastructure Deploy' workflow."
             exit 1
           fi
           

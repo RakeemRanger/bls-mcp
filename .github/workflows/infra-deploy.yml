@@ -1,4 +1,4 @@
-name: Prod Infrastructure Deploy
+name: Infrastructure Deploy
 on: workflow_dispatch
 
 permissions:
@@ -21,7 +21,7 @@ jobs:
       
       - name: Build and validate Bicep files
         run: |
-          bicep build-params infra/prod_main.bicepparam
+          bicep build-params infra/main.bicepparam
           bicep build infra/app/func_app.bicep
           bicep build infra/identity/user_assigned.bicep
           echo "✓ All Bicep files compiled successfully"
@@ -29,7 +29,6 @@ jobs:
   deploy:
     needs: validate
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,19 +40,16 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy infrastructure
+      - name: Deploy BLS MCP infrastructure
         id: deploy
         run: |
-          DEPLOYMENT_NAME="bls-mcp-prod-$(date +%Y%m%d-%H%M%S)"
+          DEPLOYMENT_NAME="bls-mcp-$(date +%Y%m%d-%H%M%S)"
           echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
           
-          # Get location from config
-          LOCATION=$(jq -r '.config.project.location' infra/prod-config.json)
-          
           az deployment sub create \
-            --location $LOCATION \
+            --location swedencentral \
             --template-file infra/main.bicep \
-            --parameters infra/prod_main.bicepparam \
+            --parameters infra/main.bicepparam \
             --name $DEPLOYMENT_NAME
       
       - name: Get deployment outputs
@@ -94,9 +90,8 @@ jobs:
         run: |
           RG_ID="${{ steps.outputs.outputs.resource_group_id }}"
           
-          # Update prod section in configs.json
           jq --arg rg_id "$RG_ID" \
-             '.prod.resource_group_id = $rg_id' \
+             '.dev.resource_group_id = $rg_id' \
              src/core/configs/configs.json > configs_updated.json
           
           mv configs_updated.json src/core/configs/configs.json
@@ -110,8 +105,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update prod resource group ID [skip ci]"
+            git commit -m "Update resource group ID [skip ci]"
             git push
           fi
-
-
