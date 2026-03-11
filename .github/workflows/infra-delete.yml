@@ -32,9 +32,9 @@ jobs:
         run: |
           # Read resource group name from config
           if [ "${{ inputs.environment }}" = "dev" ]; then
-            CONFIG_FILE="src/infra/dev-config.json"
+            CONFIG_FILE="infra/dev-config.json"
           else
-            CONFIG_FILE="src/infra/prod-config.json"
+            CONFIG_FILE="infra/prod-config.json"
           fi
           
           # Construct resource group name same way bicepparam does

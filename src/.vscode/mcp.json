@@ -2,7 +2,7 @@
     "servers": {
         "src-local-server": {
             "type": "http",
-            "url": "http://localhost:7071/runtime/webhooks/mcp"
+            "url": "http://localhost:7071/api/mcp"
         }
     }
 }

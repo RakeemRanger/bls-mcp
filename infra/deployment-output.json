@@ -1,0 +1,31 @@
+Bicep CLI is already installed at '/home/nodebrite/.azure/bin/bicep'. Skipping installation as no specific version was requested.
+{
+  "app_insights_connection_string": {
+    "type": "String",
+    "value": "InstrumentationKey=7acd9d4d-50fd-4648-8b86-2617b0fd641b;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/;LiveEndpoint=https://swedencentral.livediagnostics.monitor.azure.com/;ApplicationId=f562b548-d6e6-45a5-9340-7eb00254c95f"
+  },
+  "func_app_name": {
+    "type": "String",
+    "value": "bls-mcp-swedencentral-func"
+  },
+  "func_app_url": {
+    "type": "String",
+    "value": "https://bls-mcp-swedencentral-func.azurewebsites.net"
+  },
+  "openai_endpoint": {
+    "type": "String",
+    "value": "https://bls-mcp-swedencentral-openai.openai.azure.com/"
+  },
+  "resource_group_id": {
+    "type": "String",
+    "value": "/subscriptions/615d2787-abd7-4934-bde1-b00d7839cee8/resourceGroups/bls-mcp-swedencentral-rg"
+  },
+  "search_endpoint": {
+    "type": "String",
+    "value": "https://bls-mcp-swedencentral-search.search.windows.net"
+  },
+  "search_resource_id": {
+    "type": "String",
+    "value": "/subscriptions/615d2787-abd7-4934-bde1-b00d7839cee8/resourceGroups/bls-mcp-swedencentral-rg/providers/Microsoft.Search/searchServices/bls-mcp-swedencentral-search"
+  }
+}

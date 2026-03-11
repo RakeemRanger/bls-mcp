@@ -1,27 +1,55 @@
 import asyncio
 import os
+from pathlib import Path
 
 from semantic_kernel import Kernel
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoiceBehavior
 from semantic_kernel.core_plugins.time_plugin import TimePlugin
-from semantic_kernel.connectors.ai.azure_ai_inference import (
-    AzureAIInferenceChatCompletion,
-    AzureAIInferencePromptExecutionSettings
-)
-from utils.chat_completion_client import client
-from tools.info import BlsMcpInformationPlugin
+from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
+from core.tools.info import BlsMcpInformationPlugin
+from core.tools.bls_data_tool import BlsDataQueryPlugin
+from core.configs.config_loader import AzureConfigLoader
+from rag.rag import RagPipeline
 
 class blsKernel:
     """
     BLS LLM Orchestrator
     """
-    def __init__(self, llm_model: str = 'gpt-4o', endpoint: str = None):
+    def __init__(self, llm_model: str = None, endpoint: str = None, environment: str = None):
         self.kernel = Kernel()
         self.chat_history = ChatHistory()
-        self.llm_model = llm_model
+        
+        # Determine environment (dev/prod)
+        self.environment = environment or os.getenv('ENVIRONMENT', 'dev')
+        
+        # Resolve model deployment name - priority: parameter > env var > Azure config
+        self.llm_model = llm_model or os.getenv('MODEL_DEPLOYMENT_NAME')
+
+        # Resolve endpoint - priority: parameter > env var > Azure config
         self.endpoint = endpoint or os.getenv('AZURE_AI_INFERENCE_ENDPOINT')
+
+        # Only hit Azure Resource Management if env vars didn't supply everything
+        if not self.llm_model or not self.endpoint:
+            try:
+                config_loader = AzureConfigLoader(environment=self.environment)
+            except Exception as e:
+                raise ValueError(
+                    f"Could not load config from Azure. Set MODEL_DEPLOYMENT_NAME and "
+                    f"AZURE_AI_INFERENCE_ENDPOINT env vars, or ensure the resource group is "
+                    f"configured for '{self.environment}' environment. Error: {e}"
+                )
+            if not self.llm_model:
+                self.llm_model = config_loader.get_model_deployment()
+            if not self.endpoint:
+                self.endpoint = config_loader.get_openai_endpoint()
+
+        if not self.llm_model:
+            raise ValueError(f"Could not determine model deployment name for '{self.environment}' environment")
+        if not self.endpoint:
+            raise ValueError(f"No endpoint found for '{self.environment}' environment")
         
         # Initialize services
         self._setup_services()
@@ -29,9 +57,16 @@ class blsKernel:
 
     def _setup_services(self) -> None:
         """Setup LLM service"""
-        chat_service = AzureAIInferenceChatCompletion(
-            ai_model_id=self.llm_model,
-            client=client(endpoint=self.endpoint)
+        # Get token provider for Azure AD authentication
+        token_provider = get_bearer_token_provider(
+            DefaultAzureCredential(),
+            "https://cognitiveservices.azure.com/.default"
+        )
+        
+        chat_service = AzureChatCompletion(
+            deployment_name=self.llm_model,
+            endpoint=self.endpoint,
+            ad_token_provider=token_provider
         )
         self.kernel.add_service(chat_service)
 
@@ -39,10 +74,12 @@ class blsKernel:
         """Register plugins with kernel"""
         self.kernel.add_plugin(TimePlugin(), plugin_name="TimePlugin")
         self.kernel.add_plugin(BlsMcpInformationPlugin(), plugin_name="BlsMcpInfo")
+        self.kernel.add_plugin(BlsDataQueryPlugin(), plugin_name="BlsDataQuery")
 
-    def get_execution_settings(self) -> AzureAIInferencePromptExecutionSettings:
+    def get_execution_settings(self):
         """Get execution settings with function calling enabled"""
-        settings = AzureAIInferencePromptExecutionSettings()
+        from semantic_kernel.connectors.ai.open_ai import OpenAIChatPromptExecutionSettings
+        settings = OpenAIChatPromptExecutionSettings()
         settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
         return settings
 
