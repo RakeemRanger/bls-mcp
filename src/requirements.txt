@@ -11,3 +11,6 @@ semantic-kernel
 azure-mgmt-resource
 azure-mgmt-cognitiveservices
 azure-mgmt-web
+
+# Azure AI Search for vector storage
+azure-search-documents>=11.4.0

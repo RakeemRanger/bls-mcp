@@ -10,8 +10,9 @@ from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 from core.tools.info import BlsMcpInformationPlugin
+from core.tools.bls_data_tool import BlsDataQueryPlugin
 from core.configs.config_loader import AzureConfigLoader
-from rag.rag import RagResults
+from rag.rag import RagPipeline
 
 class blsKernel:
     """
@@ -24,31 +25,29 @@ class blsKernel:
         # Determine environment (dev/prod)
         self.environment = environment or os.getenv('ENVIRONMENT', 'dev')
         
-        # Initialize config loader
-        try:
-            config_loader = AzureConfigLoader(environment=self.environment)
-        except Exception as e:
-            raise ValueError(
-                f"Could not load endpoint. Set AZURE_AI_INFERENCE_ENDPOINT env var or ensure "
-                f"resource group ID is configured for '{self.environment}' environment. Error: {e}"
-            )
-        
-        # Get deployment name - priority: parameter > Azure config
-        if llm_model:
-            self.llm_model = llm_model
-        else:
-            self.llm_model = config_loader.get_model_deployment()
+        # Resolve model deployment name - priority: parameter > env var > Azure config
+        self.llm_model = llm_model or os.getenv('MODEL_DEPLOYMENT_NAME')
+
+        # Resolve endpoint - priority: parameter > env var > Azure config
+        self.endpoint = endpoint or os.getenv('AZURE_AI_INFERENCE_ENDPOINT')
+
+        # Only hit Azure Resource Management if env vars didn't supply everything
+        if not self.llm_model or not self.endpoint:
+            try:
+                config_loader = AzureConfigLoader(environment=self.environment)
+            except Exception as e:
+                raise ValueError(
+                    f"Could not load config from Azure. Set MODEL_DEPLOYMENT_NAME and "
+                    f"AZURE_AI_INFERENCE_ENDPOINT env vars, or ensure the resource group is "
+                    f"configured for '{self.environment}' environment. Error: {e}"
+                )
             if not self.llm_model:
-                raise ValueError(f"Could not determine model deployment name for '{self.environment}' environment")
-        
-        # Get endpoint - priority: parameter > env var > Azure config
-        if endpoint:
-            self.endpoint = endpoint
-        elif os.getenv('AZURE_AI_INFERENCE_ENDPOINT'):
-            self.endpoint = os.getenv('AZURE_AI_INFERENCE_ENDPOINT')
-        else:
-            self.endpoint = config_loader.get_openai_endpoint()
-        
+                self.llm_model = config_loader.get_model_deployment()
+            if not self.endpoint:
+                self.endpoint = config_loader.get_openai_endpoint()
+
+        if not self.llm_model:
+            raise ValueError(f"Could not determine model deployment name for '{self.environment}' environment")
         if not self.endpoint:
             raise ValueError(f"No endpoint found for '{self.environment}' environment")
         
@@ -75,6 +74,7 @@ class blsKernel:
         """Register plugins with kernel"""
         self.kernel.add_plugin(TimePlugin(), plugin_name="TimePlugin")
         self.kernel.add_plugin(BlsMcpInformationPlugin(), plugin_name="BlsMcpInfo")
+        self.kernel.add_plugin(BlsDataQueryPlugin(), plugin_name="BlsDataQuery")
 
     def get_execution_settings(self):
         """Get execution settings with function calling enabled"""

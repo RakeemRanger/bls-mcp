@@ -2,10 +2,17 @@
 Utility to load BLS series metadata from JSON config into vector store.
 """
 import json
+import sys
 from pathlib import Path
 from typing import List
 
-from data.indexes import BLSSeriesMetadata, BLSSeriesPattern
+# Handle imports for both direct execution and module import
+try:
+    from data.indexes import BLSSeriesMetadata, BLSSeriesPattern
+except ModuleNotFoundError:
+    # Add parent directory to path for direct script execution
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from rag.data.indexes import BLSSeriesMetadata, BLSSeriesPattern
 
 
 def load_metadata_from_config(config_path: str = None) -> List[BLSSeriesMetadata]:
@@ -97,7 +104,7 @@ def load_metadata_from_config(config_path: str = None) -> List[BLSSeriesMetadata
     
     # Parse county series
     for county_key, county_info in data.get('county', {}).items():
-        if county_key in ['unemployment', 'employment', 'pattern', 'note']:
+        if not isinstance(county_info, dict):
             continue
             
         county_name = county_info['name']
@@ -177,14 +184,3 @@ def load_patterns_from_config(config_path: str = None) -> List[BLSSeriesPattern]
         ))
     
     return patterns
-
-
-if __name__ == "__main__":
-    # Test the loader
-    records = load_metadata_from_config()
-    print(f"Loaded {len(records)} metadata records")
-    print(f"\nExample record:")
-    print(f"  Series ID: {records[0].seriesId}")
-    print(f"  Name: {records[0].name}")
-    print(f"  Category: {records[0].category}")
-    print(f"  Level: {records[0].level}")

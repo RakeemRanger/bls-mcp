@@ -17,12 +17,10 @@
       "instructions": "Some test instructions on how to use the server",
       "serverName": "bls-mcp",
       "serverVersion": "2.0.0",
-      "encryptClientState": true,
+      "encryptClientState": false,
+      "webhookAuthorizationLevel": "Anonymous",
       "messageOptions": {
         "useAbsoluteUriForEndpoint": false
-      },
-      "system": {
-        "webhookAuthorizationLevel": "Anonymous"
       }
     }
   }

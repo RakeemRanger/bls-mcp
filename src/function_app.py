@@ -7,6 +7,7 @@ from pathlib import Path
 
 from core.kernel import blsKernel
 from core.rag.data.data_fetcher import BlsDataSeriesFetcher
+from core.rag.data import vector_store_manager
 from core.utils.json_util import JsonUtility
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
@@ -21,53 +22,226 @@ def get_kernel() -> blsKernel:
         _kernel = blsKernel()
     return _kernel
 
-@app.mcp_tool_trigger(
-    arg_name="context",
-    type="mcpToolTrigger",
-    tool_name="rakeem_bls_mcp",
-    description="""Rakeem Bureau of Labor Statistics MCP Server.
-            Answer about ANY Public BLS datapoints,
-            Easily integrate predictive analysis.""",
-    toolProperties="[]",
-)
-async def mcp_trigger(context) -> str:
+@app.route(route="mcp", methods=["POST", "GET"], auth_level=func.AuthLevel.ANONYMOUS)
+async def mcp_http_endpoint(req: func.HttpRequest) -> func.HttpResponse:
     """
-    MCP Tool trigger for BLS queries
+    MCP Protocol HTTP endpoint (JSON-RPC 2.0 format)
     
-    Args:
-        context: MCP tool context with input arguments
-        
-    Returns:
-        AI response as string
+    Implements Model Context Protocol over HTTP
+    Supports JSON-RPC 2.0 requests
     """
     try:
-        # Parse MCP tool input
-        # Context structure depends on MCP implementation
-        # Common patterns: context.arguments, context.input, or direct dict
+        # Log raw request for debugging
+        logging.info(f"MCP endpoint called - Method: {req.method}, Content-Type: {req.headers.get('Content-Type')}")
         
-        if hasattr(context, 'arguments'):
-            query = context.arguments.get('query')
-        elif isinstance(context, dict):
-            query = context.get('query')
+        # Handle GET requests (for SSE connection attempts)
+        if req.method == 'GET':
+            return func.HttpResponse(
+                body=json.dumps({
+                    "error": "This endpoint requires POST requests with JSON-RPC 2.0 format"
+                }),
+                mimetype="application/json",
+                status_code=405
+            )
+        
+        # Parse JSON-RPC request
+        try:
+            req_body = req.get_json()
+        except Exception as json_err:
+            # Log the raw body for debugging
+            raw_body = req.get_body().decode('utf-8') if req.get_body() else ''
+            logging.error(f"JSON parse error. Raw body: {raw_body[:500]}")
+            raise ValueError(f"Invalid JSON: {str(json_err)}")
+        
+        # JSON-RPC 2.0 format validation
+        jsonrpc = req_body.get('jsonrpc')
+        method = req_body.get('method')
+        params = req_body.get('params', {})
+        request_id = req_body.get('id')
+        
+        logging.info(f"MCP request - jsonrpc: {jsonrpc}, method: {method}, id: {request_id}")
+        
+        # Handle MCP protocol methods
+        if method == 'initialize':
+            # MCP initialization handshake
+            return func.HttpResponse(
+                body=json.dumps({
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "protocolVersion": "2024-11-05",
+                        "capabilities": {
+                            "tools": {
+                                "listChanged": False
+                            }
+                        },
+                        "serverInfo": {
+                            "name": "bls-mcp-server",
+                            "version": "1.0.0"
+                        }
+                    }
+                }),
+                mimetype="application/json",
+                status_code=200
+            )
+        
+        elif method == 'tools/list':
+            # List available tools
+            return func.HttpResponse(
+                body=json.dumps({
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "tools": [
+                            {
+                                "name": "query_bls_data",
+                                "description": "Query Bureau of Labor Statistics data. Ask questions about employment, unemployment, inflation (CPI), wages, and other labor statistics.",
+                                "inputSchema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {
+                                            "type": "string",
+                                            "description": "Your question about BLS data"
+                                        }
+                                    },
+                                    "required": ["query"]
+                                }
+                            }
+                        ]
+                    }
+                }),
+                mimetype="application/json",
+                status_code=200
+            )
+        
+        elif method == 'tools/call':
+            # Execute tool call
+            tool_name = params.get('name')
+            tool_arguments = params.get('arguments', {})
+            
+            if tool_name == 'query_bls_data':
+                query = tool_arguments.get('query')
+                
+                if not query:
+                    return func.HttpResponse(
+                        body=json.dumps({
+                            "jsonrpc": "2.0",
+                            "id": request_id,
+                            "error": {
+                                "code": -32602,
+                                "message": "Invalid params: missing 'query' argument"
+                            }
+                        }),
+                        mimetype="application/json",
+                        status_code=200
+                    )
+                
+                logging.info(f"Processing BLS query: {query}")
+                
+                try:
+                    # Run query through kernel
+                    kernel = get_kernel()
+                    logging.info("Kernel initialized, running query...")
+                    response = await kernel.run(query)
+                    logging.info(f"Kernel response received, length: {len(str(response))}")
+                    
+                    result = {
+                        "jsonrpc": "2.0",
+                        "id": request_id,
+                        "result": {
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": str(response)
+                                }
+                            ]
+                        }
+                    }
+                    
+                    logging.info(f"Returning result for request_id: {request_id}")
+                    
+                    return func.HttpResponse(
+                        body=json.dumps(result),
+                        mimetype="application/json",
+                        status_code=200
+                    )
+                    
+                except Exception as kernel_error:
+                    logging.error(f"Kernel execution error: {kernel_error}", exc_info=True)
+                    return func.HttpResponse(
+                        body=json.dumps({
+                            "jsonrpc": "2.0",
+                            "id": request_id,
+                            "error": {
+                                "code": -32603,
+                                "message": f"Kernel error: {str(kernel_error)}"
+                            }
+                        }),
+                        mimetype="application/json",
+                        status_code=200
+                    )
+            else:
+                return func.HttpResponse(
+                    body=json.dumps({
+                        "jsonrpc": "2.0",
+                        "id": request_id,
+                        "error": {
+                            "code": -32601,
+                            "message": f"Unknown tool: {tool_name}"
+                        }
+                    }),
+                    mimetype="application/json",
+                    status_code=200
+                )
+        
         else:
-            query = str(context)
+            # Method not found
+            return func.HttpResponse(
+                body=json.dumps({
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "error": {
+                        "code": -32601,
+                        "message": f"Method not found: {method}"
+                    }
+                }),
+                mimetype="application/json",
+                status_code=200
+            )
         
-        logging.info(f"MCP trigger received query: {query}")
-        
-        # Run query through kernel (lazy initialized)
-        kernel = get_kernel()
-        response = await kernel.run(query)
-        
-        return response
-        
+    except ValueError as e:
+        # JSON parsing error
+        return func.HttpResponse(
+            body=json.dumps({
+                "jsonrpc": "2.0",
+                "id": None,
+                "error": {
+                    "code": -32700,
+                    "message": "Parse error: Invalid JSON"
+                }
+            }),
+            mimetype="application/json",
+            status_code=400
+        )
     except Exception as e:
-        logging.error(f"Error in MCP trigger: {e}")
-        return f"Error processing query: {str(e)}"
+        logging.error(f"Error in MCP HTTP endpoint: {e}", exc_info=True)
+        return func.HttpResponse(
+            body=json.dumps({
+                "jsonrpc": "2.0",
+                "id": request_id if 'request_id' in locals() else None,
+                "error": {
+                    "code": -32603,
+                    "message": f"Internal error: {str(e)}"
+                }
+            }),
+            mimetype="application/json",
+            status_code=500
+        )
 
 @app.timer_trigger(
     arg_name="timer",
-    run_on_startup=True,
-    schedule="0 0 16 * *"  # Run at midnight on 1st day of every month (cron: min hour day month dayOfWeek)
+    run_on_startup=True,  # Use scripts/initialize_data.py for initial load
+    schedule="0 0 1 * *"  # Run at midnight on 1st day of every month
 )
 async def fetch_bls_data(timer: func.TimerRequest) -> None:
     """
@@ -112,18 +286,42 @@ async def fetch_bls_data(timer: func.TimerRequest) -> None:
             if isinstance(state_info, dict) and 'unemployment_rate_series_id' in state_info:
                 series_ids.append(state_info['unemployment_rate_series_id'])
                 series_ids.append(state_info['employment_level_series_id'])
+
+        # County series — incremental refresh of all indexed counties
+        county_count = 0
+        for county_key, county_info in series_config.get('county', {}).items():
+            if not isinstance(county_info, dict):
+                continue
+            if not county_info.get('unemployment_rate_series_id'):
+                continue
+            series_ids.append(county_info['unemployment_rate_series_id'])
+            series_ids.append(county_info['employment_level_series_id'])
+            if 'labor_force_series_id' in county_info:
+                series_ids.append(county_info['labor_force_series_id'])
+            county_count += 1
+
+        logging.info(f"Fetching {len(series_ids)} series ({county_count} counties) from {start_year}-{current_year}...")
         
-        logging.info(f"Fetching {len(series_ids)} series from {start_year}-{current_year}...")
-        
-        # Fetch data incrementally
+        # Fetch data incrementally (returns parsed BLSSeriesIndex objects)
         fetcher = BlsDataSeriesFetcher()
-        results = fetcher.fetch_all_series(
+        records = fetcher.fetch_all_series(
             series_ids=series_ids, 
             start_year=str(start_year)
         )
         
-        # TODO: Ingest into vector store
-        # await data_manager.ingest(results)
+        logging.info(f"Parsed {len(records)} data records, upserting to Azure AI Search...")
+        
+        # Ensure indexes exist before upserting
+        await vector_store_manager.create_all_indexes()
+        
+        # Ingest time series data
+        await vector_store_manager.upsert_data_batch(records)
+        
+        # Build and ingest metadata (one record per series)
+        metadata_records = fetcher.build_metadata_records(series_ids)
+        await vector_store_manager.upsert_metadata_batch(metadata_records)
+        
+        logging.info(f"Successfully ingested {len(records)} records and {len(metadata_records)} metadata records to vector store")
         
         # Save current year as last run year for next incremental fetch
         last_run_data = {
