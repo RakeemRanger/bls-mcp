@@ -21,9 +21,9 @@ jobs:
       
       - name: Build and validate Bicep files
         run: |
-          bicep build-params src/infra/prod_main.bicepparam
-          bicep build src/infra/app/func_app.bicep
-          bicep build src/infra/identity/user_assigned.bicep
+          bicep build-params infra/prod_main.bicepparam
+          bicep build infra/app/func_app.bicep
+          bicep build infra/identity/user_assigned.bicep
           echo "✓ All Bicep files compiled successfully"
 
   deploy:
@@ -48,12 +48,12 @@ jobs:
           echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
           
           # Get location from config
-          LOCATION=$(jq -r '.config.project.location' src/infra/prod-config.json)
+          LOCATION=$(jq -r '.config.project.location' infra/prod-config.json)
           
           az deployment sub create \
             --location $LOCATION \
-            --template-file src/infra/main.bicep \
-            --parameters src/infra/prod_main.bicepparam \
+            --template-file infra/main.bicep \
+            --parameters infra/prod_main.bicepparam \
             --name $DEPLOYMENT_NAME
       
       - name: Get deployment outputs

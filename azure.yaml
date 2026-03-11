@@ -1,0 +1,17 @@
+name: bls-mcp
+metadata:
+  template: bls-mcp-server
+
+# Azure configuration
+services:
+  func-app:
+    project: src
+    language: python
+    host: function
+    hooks:
+      prepackage:
+        posix:
+          run: |
+            echo "Installing Python dependencies..."
+            python -m pip install -r requirements.txt -t .python_packages/lib/site-packages
+            echo "Package preparation complete"

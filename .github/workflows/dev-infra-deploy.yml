@@ -21,9 +21,9 @@ jobs:
       
       - name: Build and validate Bicep files
         run: |
-          bicep build-params src/infra/dev_main.bicepparam
-          bicep build src/infra/app/func_app.bicep
-          bicep build src/infra/identity/user_assigned.bicep
+          bicep build-params infra/infra/dev_main.bicepparam
+          bicep build infra/infra/app/func_app.bicep
+          bicep build infra/infra/identity/user_assigned.bicep
           echo "✓ All Bicep files compiled successfully"
 
   deploy:
@@ -47,12 +47,12 @@ jobs:
           echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
           
           # Get location from config
-          LOCATION=$(jq -r '.config.project.location' src/infra/dev-config.json)
+          LOCATION=$(jq -r '.config.project.location' infra/infra/dev-config.json)
           
           az deployment sub create \
             --location $LOCATION \
-            --template-file src/infra/main.bicep \
-            --parameters src/infra/dev_main.bicepparam \
+            --template-file infra/infra/main.bicep \
+            --parameters infra/infra/dev_main.bicepparam \
             --name $DEPLOYMENT_NAME
       
       - name: Get deployment outputs
@@ -96,16 +96,16 @@ jobs:
           # Update dev section in configs.json
           jq --arg rg_id "$RG_ID" \
              '.dev.resource_group_id = $rg_id' \
-             src/core/configs/configs.json > configs_updated.json
+             infra/core/configs/configs.json > configs_updated.json
           
-          mv configs_updated.json src/core/configs/configs.json
-          cat src/core/configs/configs.json
+          mv configs_updated.json infra/core/configs/configs.json
+          cat infra/core/configs/configs.json
       
       - name: Commit updated configs
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/core/configs/configs.json
+          git add infra/core/configs/configs.json
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
